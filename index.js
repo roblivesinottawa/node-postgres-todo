@@ -1,13 +1,32 @@
-const express = require("express");
+const server = require("./server/server");
+const config = require("./config");
 
-const app = express();
+const repository = require("./repository/todo_repository");
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const { EventEmitter } = require("events");
+const mediator = new EventEmitter();
 
-app.get("/", (req, res) =>
-  res.send({ message: "Welcome to the Node with Postgres App" }),
-);
+mediator.on("boot.ready", (dbConfig) => {
+  let rep;
+  repository
+    .connect(dbConfig)
+    .then((repo) => {
+      console.log("Repository Connected. Starting Server...");
+      rep = repo;
 
-const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => console.log(`App listening at localhost:${PORT}`));
+      return server.begin({
+        port: config.serverSettings.port,
+        repo: repo,
+        okta: config.oktaSettings,
+      });
+    })
+    .then((app) => {
+      console.log(
+        `Server started successfully, running on port: ${config.serverSettings.port}`,
+      );
+      app.on("close", () => rep.disconnect());
+    });
+});
+mediator.on("db.error", (error) => console.log(error));
+
+mediator.emit("boot.ready", config.dbSettings);

@@ -11,7 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@okta/oidc-middleware": "^2.0.0",
+    "@okta/okta-sdk-nodejs": "^2.0.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "nodemon": "^2.0.7"
+    "express-session": "^1.17.2",
+    "http-status": "^0.2.5",
+    "nodemon": "^2.0.7",
+    "pg": "^8.6.0",
+    "pug": "^2.0.4",
+    "sequelize": "^6.6.2"
   }
 }
